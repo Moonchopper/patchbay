@@ -1,0 +1,21 @@
+{
+  "name": "patchbay",
+  "setup": [["uv", "venv", "--allow-existing"], ["uv", "pip", "install", "--quiet", "-e", ".[web]"]],
+  "run": ["uv", "run", "--no-sync", "patchbay", "web", "--host", "127.0.0.1", "--port", "{port}"],
+  "open": "http://127.0.0.1:{port}/",
+  "cache": [".venv"],
+  "env": { "PATCHBAY_TLS": "off" },
+  "launch": [
+    {
+      "label": "Demo network",
+      "env": { "PATCHBAY_ENV": "{dir}/review-none.env", "PATCHBAY_DB": "{dir}/review-demo.db", "PATCHBAY_AUTH": "none" },
+      "before": [["uv", "run", "--no-sync", "patchbay", "demo", "--db", "{dir}/review-demo.db", "--force"]]
+    },
+    {
+      "label": "My network",
+      "env": { "PATCHBAY_ENV": "{env:PATCHBAY_REVIEW_ENV}", "PATCHBAY_DB": "{dir}/review-site.db" },
+      "before": [["uv", "run", "--no-sync", "python", "-c",
+                  "import os, shutil, sys; src = os.environ.get('PATCHBAY_REVIEW_DB') or sys.exit('Start Reviews with PATCHBAY_REVIEW_ENV and PATCHBAY_REVIEW_DB set: your site .env and database.'); shutil.copyfile(src, 'review-site.db')"]]
+    }
+  ]
+}
